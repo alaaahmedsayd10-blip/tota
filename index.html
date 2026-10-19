@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>يلا سيتي | Yalla City</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#16252b;font-family:system-ui,Arial;touch-action:none}
+canvas{display:block;width:100vw;height:100dvh;background:#83bfa0}
+#hud{position:fixed;top:12px;right:12px;left:12px;display:flex;justify-content:space-between;align-items:center;color:white;pointer-events:none;text-shadow:0 2px 5px #123;font-weight:800}
+.pill{background:#102b2bd9;border:1px solid #ffffff45;border-radius:14px;padding:8px 12px}
+#hint{position:fixed;top:60px;left:50%;transform:translateX(-50%);white-space:nowrap;color:#fff;background:#102b2bd9;padding:7px 12px;border-radius:12px;font-size:12px}
+#pad{position:fixed;bottom:20px;left:18px;width:132px;height:132px;border-radius:50%;background:#173d3d88;border:2px solid #ffffff80}
+#nub{position:absolute;width:52px;height:52px;border-radius:50%;left:38px;top:38px;background:#ffffffc9;border:2px solid #fff;box-shadow:0 3px 10px #0005}
+#action{position:fixed;bottom:34px;right:22px;width:76px;height:76px;border:2px solid #fff;border-radius:50%;background:#ffb938;color:#38230a;font-weight:900;font-size:13px;box-shadow:0 4px 0 #a96817}
+#msg{position:fixed;left:50%;top:45%;transform:translate(-50%,-50%);color:white;background:#102b2bf0;padding:14px 18px;border-radius:16px;display:none;text-align:center;max-width:85vw}
+</style></head>
+<body>
+<canvas id="game"></canvas>
+<div id="hud"><div class="pill">🏙️ يلا سيتي</div><div class="pill">🪙 <span id="money">0</span></div></div>
+<div id="hint">حرّك الشخصية واجمع العملات ✨</div>
+<div id="pad"><div id="nub"></div></div><button id="action">اجمع 🪙</button><div id="msg"></div>
+<script>
+(()=>{const c=document.querySelector('#game'),ctx=c.getContext('2d'),pad=document.querySelector('#pad'),nub=document.querySelector('#nub'),action=document.querySelector('#action'),moneyEl=document.querySelector('#money'),msg=document.querySelector('#msg');
+let W=0,H=0,dpr=1,money=0,joy={x:0,y:0},keys={},coins=[],t=0;
+const player={x:0,y:0,r:13,speed:185};
+function resize(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;c.width=W*dpr;c.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);player.x=W*.5;player.y=H*.56;coins=Array.from({length:12},(_,i)=>({x:90+Math.random()*(W-180),y:110+Math.random()*(H-240),got:false,phase:Math.random()*6}))}
+addEventListener('resize',resize);resize();
+function rounded(x,y,w,h,r,color){ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill()}
+function building(x,y,w,h,col){rounded(x+4,y+7,w,h,8,'#315b4c');rounded(x,y,w,h,8,col);ctx.fillStyle='#e8d6a3';for(let yy=y+17;yy<y+h-10;yy+=25)for(let xx=x+13;xx<x+w-7;xx+=23){rounded(xx,yy,11,14,2,'#a8d9d5');ctx.fillStyle='#ffffff55';ctx.fillRect(xx+2,yy+2,2,10)}rounded(x+w*.38,y+h-24,w*.24,24,4,'#805b47')}
+function draw(){t+=1/60;ctx.clearRect(0,0,W,H);ctx.fillStyle='#8bc7a2';ctx.fillRect(0,0,W,H);
+ctx.fillStyle='#b7b3a1';ctx.fillRect(0,H*.22,W,H*.56);ctx.fillRect(W*.16,0,W*.68,H);
+ctx.fillStyle='#dfd8bd';ctx.fillRect(0,H*.25,W,H*.03);ctx.fillRect(0,H*.72,W,H*.03);ctx.fillRect(W*.19,0,W*.025,H);ctx.fillRect(W*.81,0,W*.025,H);
+ctx.strokeStyle='#f8e7a4';ctx.lineWidth=3;ctx.setLineDash([18,18]);ctx.beginPath();ctx.moveTo(0,H*.5);ctx.lineTo(W,H*.5);ctx.moveTo(W*.5,0);ctx.lineTo(W*.5,H);ctx.stroke();ctx.setLineDash([]);
+building(15,20,W*.23,H*.16,'#dc9b72');building(W*.70,25,W*.26,H*.17,'#e6c27e');building(12,H*.79,W*.24,H*.17,'#d57f77');building(W*.72,H*.79,W*.25,H*.16,'#9aabd6');
+coins.forEach(o=>{if(o.got)return;let yy=o.y+Math.sin(t*3+o.phase)*4;ctx.fillStyle='#9b641d';ctx.beginPath();ctx.arc(o.x,yy+2,9,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ffd34f';ctx.beginPath();ctx.arc(o.x,yy,8,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff1a5';ctx.fillRect(o.x-2,yy-5,3,9)});
+ctx.fillStyle='#0003';ctx.beginPath();ctx.ellipse(player.x,player.y+14,12,5,0,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#2b536b';ctx.beginPath();ctx.roundRect(player.x-10,player.y-1,20,21,6);ctx.fill();
+ctx.fillStyle='#f1bc8d';ctx.beginPath();ctx.arc(player.x,player.y-9,9,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#3b2b27';ctx.beginPath();ctx.arc(player.x,player.y-12,9,Math.PI,Math.PI*2);ctx.fill();
+ctx.fillStyle='#fff';ctx.fillRect(player.x-5,player.y-10,3,3);ctx.fillRect(player.x+3,player.y-10,3,3);
+requestAnimationFrame(draw)}
+let last=performance.now();function update(now){let dt=Math.min((now-last)/1000,.04);last=now;let dx=joy.x+(keys.ArrowRight||keys.d?1:0)-(keys.ArrowLeft||keys.a?1:0),dy=joy.y+(keys.ArrowDown||keys.s?1:0)-(keys.ArrowUp||keys.w?1:0),len=Math.hypot(dx,dy)||1;if(len>1){dx/=len;dy/=len}player.x=Math.max(12,Math.min(W-12,player.x+dx*player.speed*dt));player.y=Math.max(95,Math.min(H-12,player.y+dy*player.speed*dt));coins.forEach(o=>{if(!o.got&&Math.hypot(player.x-o.x,player.y-o.y)<25){o.got=true;money++;moneyEl.textContent=money;}});requestAnimationFrame(update)}requestAnimationFrame(update);requestAnimationFrame(draw);
+let active=false,cx=0,cy=0;function move(e){const r=pad.getBoundingClientRect(),x=e.clientX-(r.left+r.width/2),y=e.clientY-(r.top+r.height/2),max=39,l=Math.hypot(x,y)||1,scale=Math.min(1,max/l);joy={x:x*scale/max,y:y*scale/max};nub.style.left=(38+x*scale)+'px';nub.style.top=(38+y*scale)+'px'}
+pad.addEventListener('pointerdown',e=>{active=true;pad.setPointerCapture(e.pointerId);move(e)});pad.addEventListener('pointermove',e=>{if(active)move(e)});function release(){active=false;joy={x:0,y:0};nub.style.left='38px';nub.style.top='38px'}pad.addEventListener('pointerup',release);pad.addEventListener('pointercancel',release);addEventListener('keydown',e=>keys[e.key]=true);addEventListener('keyup',e=>keys[e.key]=false);
+action.addEventListener('click',()=>{const o=coins.find(o=>!o.got&&Math.hypot(player.x-o.x,player.y-o.y)<55);if(o){o.got=true;money+=2;moneyEl.textContent=money;msg.textContent='جميل! كسبت عملتين 🪙';}else{msg.textContent='قرّب من عملة ذهبية عشان تجمعها!';}msg.style.display='block';setTimeout(()=>msg.style.display='none',1300)});
+})();
+</script></body></html>
