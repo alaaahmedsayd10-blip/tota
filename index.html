@@ -2,46 +2,74 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>يلا سيتي | Yalla City</title>
+<meta name="theme-color" content="#173b37"><title>يلا وورلد | Yalla World</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#16252b;font-family:system-ui,Arial;touch-action:none}
-canvas{display:block;width:100vw;height:100dvh;background:#83bfa0}
-#hud{position:fixed;top:12px;right:12px;left:12px;display:flex;justify-content:space-between;align-items:center;color:white;pointer-events:none;text-shadow:0 2px 5px #123;font-weight:800}
-.pill{background:#102b2bd9;border:1px solid #ffffff45;border-radius:14px;padding:8px 12px}
-#hint{position:fixed;top:60px;left:50%;transform:translateX(-50%);white-space:nowrap;color:#fff;background:#102b2bd9;padding:7px 12px;border-radius:12px;font-size:12px}
-#pad{position:fixed;bottom:20px;left:18px;width:132px;height:132px;border-radius:50%;background:#173d3d88;border:2px solid #ffffff80}
-#nub{position:absolute;width:52px;height:52px;border-radius:50%;left:38px;top:38px;background:#ffffffc9;border:2px solid #fff;box-shadow:0 3px 10px #0005}
-#action{position:fixed;bottom:34px;right:22px;width:76px;height:76px;border:2px solid #fff;border-radius:50%;background:#ffb938;color:#38230a;font-weight:900;font-size:13px;box-shadow:0 4px 0 #a96817}
-#msg{position:fixed;left:50%;top:45%;transform:translate(-50%,-50%);color:white;background:#102b2bf0;padding:14px 18px;border-radius:16px;display:none;text-align:center;max-width:85vw}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#75b88b;font-family:system-ui,Tahoma,Arial;touch-action:none;color:#fff}canvas{width:100%;height:100%;display:block}
+#top{position:fixed;top:10px;right:10px;left:10px;display:flex;gap:7px;align-items:center;justify-content:space-between;pointer-events:none;flex-wrap:wrap}.pill{background:#102b2be8;border:1px solid #ffffff40;border-radius:13px;padding:7px 10px;font-weight:800;font-size:13px;text-shadow:0 1px 2px #0005}
+#hint{position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#102b2bd9;border-radius:12px;padding:7px 12px;font-size:12px;white-space:nowrap;max-width:92vw;text-align:center}
+#pad{position:fixed;bottom:20px;left:17px;width:128px;height:128px;border-radius:50%;background:#173d3d77;border:2px solid #ffffff8c;touch-action:none}#nub{position:absolute;width:50px;height:50px;border-radius:50%;left:37px;top:37px;background:#ffffffd9;border:2px solid white;box-shadow:0 3px 10px #0005}
+.actions{position:fixed;bottom:22px;right:14px;display:grid;grid-template-columns:repeat(2,68px);gap:9px}.act{height:58px;border:2px solid #fff;border-radius:17px;background:#ffbd43;color:#38230a;font-weight:900;font-size:12px;box-shadow:0 4px 0 #a96817;touch-action:manipulation}.act.alt{background:#eaf5e9;color:#1e4738;box-shadow:0 4px 0 #92b7a1}
+#msg{position:fixed;left:50%;top:44%;transform:translate(-50%,-50%);background:#102b2bf2;border:1px solid #ffffff55;padding:15px 18px;border-radius:16px;display:none;text-align:center;max-width:88vw;z-index:4;line-height:1.6}
+#panel{position:fixed;inset:0;background:#081d1dcc;display:none;align-items:center;justify-content:center;padding:18px;z-index:5}#card{width:min(420px,100%);max-height:85vh;overflow:auto;background:#f3f7e9;color:#18392f;border-radius:23px;padding:20px;box-shadow:0 15px 50px #0005}#card h2{margin:0 0 10px}#card p{line-height:1.6}#card button,#card input{font:inherit;border:0;border-radius:12px;padding:10px;margin:4px}#card button{background:#1e5d4b;color:white;font-weight:800}#card input{width:100%;background:white;border:1px solid #b9cbbd;color:#18392f}
+#chatlog{height:130px;overflow:auto;background:#e2ecdf;border-radius:12px;padding:9px;font-size:13px;margin:8px 0}.small{font-size:12px;color:#557065}
+@media(max-height:520px){#pad{width:95px;height:95px;bottom:10px}#nub{width:40px;height:40px;left:26px;top:26px}.actions{bottom:10px}.act{height:47px}#hint{top:53px}}
 </style></head>
-<body>
-<canvas id="game"></canvas>
-<div id="hud"><div class="pill">🏙️ يلا سيتي</div><div class="pill">🪙 <span id="money">0</span></div></div>
-<div id="hint">حرّك الشخصية واجمع العملات ✨</div>
-<div id="pad"><div id="nub"></div></div><button id="action">اجمع 🪙</button><div id="msg"></div>
+<body><canvas id="game"></canvas>
+<div id="top"><div class="pill">🌎 يلا وورلد</div><div class="pill">👤 <span id="username">لاعب</span></div><div class="pill">🪙 <span id="money">0</span></div><div class="pill">⭐ <span id="level">1</span></div></div>
+<div id="hint">حرّك عصا التحكم لاستكشاف المدينة — اقترب من مبنى واضغط تفاعل</div>
+<div id="pad"><div id="nub"></div></div>
+<div class="actions"><button class="act" id="interact">تفاعل 🚪</button><button class="act alt" id="mapbtn">الخريطة 🗺️</button><button class="act alt" id="homebtn">بيتي 🏠</button><button class="act" id="chatbtn">الدردشة 💬</button></div>
+<div id="msg"></div><div id="panel"><div id="card"></div></div>
 <script>
-(()=>{const c=document.querySelector('#game'),ctx=c.getContext('2d'),pad=document.querySelector('#pad'),nub=document.querySelector('#nub'),action=document.querySelector('#action'),moneyEl=document.querySelector('#money'),msg=document.querySelector('#msg');
-let W=0,H=0,dpr=1,money=0,joy={x:0,y:0},keys={},coins=[],t=0;
-const player={x:0,y:0,r:13,speed:185};
-function resize(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;c.width=W*dpr;c.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);player.x=W*.5;player.y=H*.56;coins=Array.from({length:12},(_,i)=>({x:90+Math.random()*(W-180),y:110+Math.random()*(H-240),got:false,phase:Math.random()*6}))}
-addEventListener('resize',resize);resize();
-function rounded(x,y,w,h,r,color){ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill()}
-function building(x,y,w,h,col){rounded(x+4,y+7,w,h,8,'#315b4c');rounded(x,y,w,h,8,col);ctx.fillStyle='#e8d6a3';for(let yy=y+17;yy<y+h-10;yy+=25)for(let xx=x+13;xx<x+w-7;xx+=23){rounded(xx,yy,11,14,2,'#a8d9d5');ctx.fillStyle='#ffffff55';ctx.fillRect(xx+2,yy+2,2,10)}rounded(x+w*.38,y+h-24,w*.24,24,4,'#805b47')}
-function draw(){t+=1/60;ctx.clearRect(0,0,W,H);ctx.fillStyle='#8bc7a2';ctx.fillRect(0,0,W,H);
-ctx.fillStyle='#b7b3a1';ctx.fillRect(0,H*.22,W,H*.56);ctx.fillRect(W*.16,0,W*.68,H);
-ctx.fillStyle='#dfd8bd';ctx.fillRect(0,H*.25,W,H*.03);ctx.fillRect(0,H*.72,W,H*.03);ctx.fillRect(W*.19,0,W*.025,H);ctx.fillRect(W*.81,0,W*.025,H);
-ctx.strokeStyle='#f8e7a4';ctx.lineWidth=3;ctx.setLineDash([18,18]);ctx.beginPath();ctx.moveTo(0,H*.5);ctx.lineTo(W,H*.5);ctx.moveTo(W*.5,0);ctx.lineTo(W*.5,H);ctx.stroke();ctx.setLineDash([]);
-building(15,20,W*.23,H*.16,'#dc9b72');building(W*.70,25,W*.26,H*.17,'#e6c27e');building(12,H*.79,W*.24,H*.17,'#d57f77');building(W*.72,H*.79,W*.25,H*.16,'#9aabd6');
-coins.forEach(o=>{if(o.got)return;let yy=o.y+Math.sin(t*3+o.phase)*4;ctx.fillStyle='#9b641d';ctx.beginPath();ctx.arc(o.x,yy+2,9,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ffd34f';ctx.beginPath();ctx.arc(o.x,yy,8,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff1a5';ctx.fillRect(o.x-2,yy-5,3,9)});
-ctx.fillStyle='#0003';ctx.beginPath();ctx.ellipse(player.x,player.y+14,12,5,0,0,Math.PI*2);ctx.fill();
-ctx.fillStyle='#2b536b';ctx.beginPath();ctx.roundRect(player.x-10,player.y-1,20,21,6);ctx.fill();
-ctx.fillStyle='#f1bc8d';ctx.beginPath();ctx.arc(player.x,player.y-9,9,0,Math.PI*2);ctx.fill();
-ctx.fillStyle='#3b2b27';ctx.beginPath();ctx.arc(player.x,player.y-12,9,Math.PI,Math.PI*2);ctx.fill();
-ctx.fillStyle='#fff';ctx.fillRect(player.x-5,player.y-10,3,3);ctx.fillRect(player.x+3,player.y-10,3,3);
-requestAnimationFrame(draw)}
-let last=performance.now();function update(now){let dt=Math.min((now-last)/1000,.04);last=now;let dx=joy.x+(keys.ArrowRight||keys.d?1:0)-(keys.ArrowLeft||keys.a?1:0),dy=joy.y+(keys.ArrowDown||keys.s?1:0)-(keys.ArrowUp||keys.w?1:0),len=Math.hypot(dx,dy)||1;if(len>1){dx/=len;dy/=len}player.x=Math.max(12,Math.min(W-12,player.x+dx*player.speed*dt));player.y=Math.max(95,Math.min(H-12,player.y+dy*player.speed*dt));coins.forEach(o=>{if(!o.got&&Math.hypot(player.x-o.x,player.y-o.y)<25){o.got=true;money++;moneyEl.textContent=money;}});requestAnimationFrame(update)}requestAnimationFrame(update);requestAnimationFrame(draw);
-let active=false,cx=0,cy=0;function move(e){const r=pad.getBoundingClientRect(),x=e.clientX-(r.left+r.width/2),y=e.clientY-(r.top+r.height/2),max=39,l=Math.hypot(x,y)||1,scale=Math.min(1,max/l);joy={x:x*scale/max,y:y*scale/max};nub.style.left=(38+x*scale)+'px';nub.style.top=(38+y*scale)+'px'}
-pad.addEventListener('pointerdown',e=>{active=true;pad.setPointerCapture(e.pointerId);move(e)});pad.addEventListener('pointermove',e=>{if(active)move(e)});function release(){active=false;joy={x:0,y:0};nub.style.left='38px';nub.style.top='38px'}pad.addEventListener('pointerup',release);pad.addEventListener('pointercancel',release);addEventListener('keydown',e=>keys[e.key]=true);addEventListener('keyup',e=>keys[e.key]=false);
-action.addEventListener('click',()=>{const o=coins.find(o=>!o.got&&Math.hypot(player.x-o.x,player.y-o.y)<55);if(o){o.got=true;money+=2;moneyEl.textContent=money;msg.textContent='جميل! كسبت عملتين 🪙';}else{msg.textContent='قرّب من عملة ذهبية عشان تجمعها!';}msg.style.display='block';setTimeout(()=>msg.style.display='none',1300)});
-})();
-</script></body></html>
+(()=>{'use strict';
+const canvas=document.querySelector('#game'),ctx=canvas.getContext('2d'),pad=document.querySelector('#pad'),nub=document.querySelector('#nub'),moneyEl=document.querySelector('#money'),msg=document.querySelector('#msg'),panel=document.querySelector('#panel'),card=document.querySelector('#card');
+const WORLD={w:2200,h:1800};let W=innerWidth,H=innerHeight,dpr=1,last=performance.now(),time=0,joy={x:0,y:0},keys={},money=+(localStorage.yw_money||0),username=localStorage.yw_name||'لاعب',inside=null,chat=[],mapMode=false;
+document.querySelector('#username').textContent=username;moneyEl.textContent=money;
+const player={x:1100,y:920,speed:220,dir:0,walk:0};
+const buildings=[
+{x:180,y:150,w:260,h:210,name:'🏠 بيت العيلة',color:'#e5b17c',type:'house'},
+{x:550,y:130,w:260,h:230,name:'☕ كافيه يلا',color:'#d78f7b',type:'cafe'},
+{x:1260,y:150,w:300,h:210,name:'🛍️ مول المدينة',color:'#92b4dc',type:'mall'},
+{x:1710,y:160,w:300,h:250,name:'🏢 عمارة النخيل',color:'#e8d18c',type:'home'},
+{x:180,y:690,w:300,h:250,name:'🏥 المستشفى',color:'#f1e7db',type:'hospital'},
+{x:560,y:720,w:250,h:210,name:'🎮 صالة الألعاب',color:'#a69bd4',type:'arcade'},
+{x:1410,y:700,w:300,h:240,name:'🏫 المدرسة',color:'#d7a5ca',type:'school'},
+{x:1760,y:720,w:250,h:230,name:'🍕 مطعم بيتزا',color:'#e9a86c',type:'food'},
+{x:180,y:1320,w:300,h:240,name:'🏬 سوبر ماركت',color:'#a7d3aa',type:'shop'},
+{x:650,y:1320,w:300,h:240,name:'🏠 بيت ورد',color:'#e4a8b5',type:'house'},
+{x:1420,y:1300,w:270,h:240,name:'🏋️ نادي رياضي',color:'#9ccbc8',type:'gym'},
+{x:1770,y:1300,w:250,h:240,name:'🏨 فندق يلا',color:'#b4b4df',type:'hotel'}
+];
+const parks=[{x:900,y:180,w:260,h:290},{x:930,y:1260,w:300,h:260},{x:890,y:700,w:300,h:260}];
+let coins=Array.from({length:42},(_,i)=>({x:90+((i*317)%2010),y:90+((i*193)%1610),got:false,phase:i*.7}));
+const npcs=Array.from({length:12},(_,i)=>({x:360+(i*173)%1500,y:420+(i*127)%1000,baseX:360+(i*173)%1500,baseY:420+(i*127)%1000,phase:i*2,name:['سارة','عمر','ليلى','آدم','نور','يوسف'][i%6],color:['#de8274','#648fbd','#d2a04e','#8b78bd'][i%4]}));
+function resize(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=W*dpr;canvas.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)}addEventListener('resize',resize);resize();
+function round(x,y,w,h,r,col){ctx.fillStyle=col;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill()}
+function overlapCircleRect(x,y,r,b){let nx=Math.max(b.x,Math.min(x,b.x+b.w)),ny=Math.max(b.y,Math.min(y,b.y+b.h));return (x-nx)**2+(y-ny)**2<r*r}
+function blocked(x,y){if(x<25||y<25||x>WORLD.w-25||y>WORLD.h-25)return true;return buildings.some(b=>overlapCircleRect(x,y,17,b))}
+function movePlayer(dx,dy,dt){let len=Math.hypot(dx,dy);if(len>1){dx/=len;dy/=len}let nx=player.x+dx*player.speed*dt,ny=player.y+dy*player.speed*dt;if(!blocked(nx,player.y))player.x=nx;if(!blocked(player.x,ny))player.y=ny;if(Math.abs(dx)+Math.abs(dy)>.05){player.dir=Math.atan2(dy,dx);player.walk+=dt*12}}
+function drawBuilding(b){round(b.x+7,b.y+10,b.w,b.h,14,'#37644c');round(b.x,b.y,b.w,b.h,14,b.color);round(b.x+8,b.y+8,b.w-16,34,8,'#ffffff55');ctx.fillStyle='#315b52';ctx.font='bold 17px system-ui';ctx.textAlign='center';ctx.fillText(b.name,b.x+b.w/2,b.y+29);let cols=Math.max(2,Math.floor((b.w-35)/58));for(let i=0;i<cols;i++){let xx=b.x+20+i*((b.w-40)/cols);round(xx,b.y+62,27,35,4,'#a8dcd6');ctx.fillStyle='#ffffff75';ctx.fillRect(xx+4,b.y+66,3,25)}round(b.x+b.w*.38,b.y+b.h-42,b.w*.24,42,6,'#805843');round(b.x+b.w*.38+6,b.y+b.h-35,b.w*.24-12,25,4,'#bc9673')}
+function drawTree(x,y){ctx.fillStyle='#73573e';ctx.fillRect(x-4,y+2,8,18);ctx.fillStyle='#367e54';ctx.beginPath();ctx.arc(x,y,17,0,7);ctx.fill();ctx.fillStyle='#56a66b';ctx.beginPath();ctx.arc(x-5,y-5,10,0,7);ctx.fill()}
+function drawAvatar(a,isPlayer=false){let bob=isPlayer?Math.sin(player.walk)*3:Math.sin(time*2+a.phase)*2;ctx.fillStyle='#0003';ctx.beginPath();ctx.ellipse(a.x,a.y+14,12,5,0,0,7);ctx.fill();round(a.x-10,a.y-1+bob,20,22,6,isPlayer?'#286b86':a.color);ctx.fillStyle='#f2c49c';ctx.beginPath();ctx.arc(a.x,a.y-10+bob,9,0,7);ctx.fill();ctx.fillStyle='#49372e';ctx.beginPath();ctx.arc(a.x,a.y-13+bob,9,Math.PI,Math.PI*2);ctx.fill();ctx.fillStyle='#fff';ctx.fillRect(a.x-5,a.y-11+bob,3,3);ctx.fillRect(a.x+3,a.y-11+bob,3,3);if(!isPlayer){ctx.font='11px system-ui';ctx.textAlign='center';ctx.fillStyle='#173d34';ctx.fillText(a.name,a.x,a.y-26+bob)}}
+function drawWorld(){ctx.fillStyle='#8cc99d';ctx.fillRect(0,0,W,H);let camX=Math.max(0,Math.min(WORLD.w-W,player.x-W/2)),camY=Math.max(0,Math.min(WORLD.h-H,player.y-H/2));if(W>WORLD.w)camX=-(W-WORLD.w)/2;if(H>WORLD.h)camY=-(H-WORLD.h)/2;ctx.save();ctx.translate(-camX,-camY);
+ctx.fillStyle='#b9b7a4';ctx.fillRect(0,470,WORLD.w,150);ctx.fillRect(490,0,140, WORLD.h);ctx.fillRect(1180,0,150,WORLD.h);ctx.fillRect(0,1040,WORLD.w,140);
+ctx.fillStyle='#e3ddc6';ctx.fillRect(0,470,WORLD.w,12);ctx.fillRect(0,608,WORLD.w,12);ctx.fillRect(0,1040,WORLD.w,12);ctx.fillRect(0,1168,WORLD.w,12);ctx.fillRect(490,0,12,WORLD.h);ctx.fillRect(618,0,12,WORLD.h);ctx.fillRect(1180,0,12,WORLD.h);ctx.fillRect(1318,0,12,WORLD.h);
+ctx.strokeStyle='#f7e6a5';ctx.lineWidth=3;ctx.setLineDash([20,18]);ctx.beginPath();ctx.moveTo(0,545);ctx.lineTo(WORLD.w,545);ctx.moveTo(0,1110);ctx.lineTo(WORLD.w,1110);ctx.moveTo(560,0);ctx.lineTo(560,WORLD.h);ctx.moveTo(1255,0);ctx.lineTo(1255,WORLD.h);ctx.stroke();ctx.setLineDash([]);
+parks.forEach(p=>{round(p.x,p.y,p.w,p.h,18,'#76bd83');for(let i=0;i<8;i++)drawTree(p.x+22+(i*53)%(p.w-35),p.y+35+(i*71)%(p.h-50));ctx.strokeStyle='#d8caa0';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(p.x+25,p.y+p.h/2);ctx.lineTo(p.x+p.w-25,p.y+p.h/2);ctx.stroke()});
+for(let x=60;x<WORLD.w;x+=90)for(let y=60;y<WORLD.h;y+=95){if((x+y)%3===0){ctx.fillStyle='#ffffff12';ctx.fillRect(x,y,30,2)}}
+buildings.forEach(drawBuilding);
+coins.forEach(o=>{if(o.got)return;let yy=o.y+Math.sin(time*3+o.phase)*4;ctx.fillStyle='#9b641d';ctx.beginPath();ctx.arc(o.x,yy+2,10,0,7);ctx.fill();ctx.fillStyle='#ffd34f';ctx.beginPath();ctx.arc(o.x,yy,8,0,7);ctx.fill();ctx.fillStyle='#fff1a5';ctx.fillRect(o.x-2,yy-5,3,9)});
+npcs.forEach(a=>{a.x=a.baseX+Math.sin(time*.45+a.phase)*24;a.y=a.baseY+Math.cos(time*.5+a.phase)*14;drawAvatar(a)});
+drawAvatar(player,true);ctx.restore();return {camX,camY}}
+function drawMap(){ctx.fillStyle='#17352e';ctx.fillRect(0,0,W,H);let s=Math.min((W-40)/WORLD.w,(H-120)/WORLD.h);ctx.save();ctx.translate((W-WORLD.w*s)/2,(H-WORLD.h*s)/2);ctx.scale(s,s);ctx.fillStyle='#8cc99d';ctx.fillRect(0,0,WORLD.w,WORLD.h);ctx.fillStyle='#b9b7a4';ctx.fillRect(0,470,WORLD.w,150);ctx.fillRect(490,0,140,WORLD.h);ctx.fillRect(1180,0,150,WORLD.h);ctx.fillRect(0,1040,WORLD.w,140);parks.forEach(p=>{ctx.fillStyle='#65ae76';ctx.fillRect(p.x,p.y,p.w,p.h)});buildings.forEach(b=>{ctx.fillStyle=b.color;ctx.fillRect(b.x,b.y,b.w,b.h)});ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(player.x,player.y,26,0,7);ctx.fill();ctx.fillStyle='#e44';ctx.beginPath();ctx.arc(player.x,player.y,13,0,7);ctx.fill();ctx.restore();ctx.fillStyle='white';ctx.font='bold 18px system-ui';ctx.textAlign='center';ctx.fillText('خريطة مدينة يلا',W/2,40);ctx.font='13px system-ui';ctx.fillText('اضغط زر الخريطة للرجوع للعب',W/2,H-25)}
+function tick(now){let dt=Math.min((now-last)/1000,.04);last=now;time+=dt;if(!panel.style.display||panel.style.display==='none'){let dx=joy.x+(keys.ArrowRight||keys.d?1:0)-(keys.ArrowLeft||keys.a?1:0),dy=joy.y+(keys.ArrowDown||keys.s?1:0)-(keys.ArrowUp||keys.w?1:0);if(!inside)movePlayer(dx,dy,dt);coins.forEach(o=>{if(!o.got&&Math.hypot(player.x-o.x,player.y-o.y)<26){o.got=true;money++;save();}})}if(mapMode)drawMap();else drawWorld();requestAnimationFrame(tick)}requestAnimationFrame(tick);
+function save(){localStorage.yw_money=money;moneyEl.textContent=money;document.querySelector('#level').textContent=1+Math.floor(money/20)}
+function toast(s){msg.textContent=s;msg.style.display='block';clearTimeout(toast.timer);toast.timer=setTimeout(()=>msg.style.display='none',1900)}
+let active=false;function moveJoy(e){const r=pad.getBoundingClientRect(),x=e.clientX-(r.left+r.width/2),y=e.clientY-(r.top+r.height/2),max=37,l=Math.hypot(x,y)||1,sc=Math.min(1,max/l);joy={x:x*sc/max,y:y*sc/max};nub.style.left=(37+x*sc)+'px';nub.style.top=(37+y*sc)+'px'}pad.addEventListener('pointerdown',e=>{active=true;pad.setPointerCapture(e.pointerId);moveJoy(e)});pad.addEventListener('pointermove',e=>{if(active)moveJoy(e)});function release(){active=false;joy={x:0,y:0};nub.style.left='37px';nub.style.top='37px'}pad.addEventListener('pointerup',release);pad.addEventListener('pointercancel',release);addEventListener('keydown',e=>{keys[e.key]=true;if(e.key==='Escape')closePanel()});addEventListener('keyup',e=>keys[e.key]=false);
+function showPanel(html){card.innerHTML=html;panel.style.display='flex'}function closePanel(){panel.style.display='none'}panel.addEventListener('click',e=>{if(e.target===panel)closePanel()});
+document.querySelector('#mapbtn').onclick=()=>{mapMode=!mapMode;document.querySelector('#hint').textContent=mapMode?'عرض الخريطة — اضغط الزر مرة أخرى':'استكشف المدينة واجمع العملات';};
+function nearestBuilding(){return buildings.map(b=>({...b,d:Math.hypot(player.x-(b.x+b.w/2),player.y-(b.y+b.h/2))})).sort((a,b)=>a.d-b.d)[0]}
+document.querySelector('#interact').onclick=()=>{if(inside){inside=null;toast('رجعت للمدينة 🌎');return}let b=nearestBuilding();if(b&&b.d<Math.max(b.w,b.h)/2+75){inside=b;showPanel('<h2>'+b.name+'</h2><p>أهلاً بيك! ده مكان من أماكن يلا وورلد. تقدر تستكشفه وتجهز بيتك في النسخة دي.</p><p class="small">الدخول هنا تجريبي، ويمكن تطوير كل مبنى بمحتوى خاص.</p><button id="exitbuilding">الخروج للمدينة</button>');document.querySelector('#exitbuilding').onclick=()=>{closePanel();inside=null;toast('أهلاً بعودتك!')};}else toast('قرّب من مبنى عشان تتفاعل معاه 🚶')};
+document.querySelector('#homebtn').onclick=()=>{showPanel('<h2>🏠 بيتي في يلا</h2><p>اختار اسمك واحفظه على جهازك. رصيدك الحالي: 🪙 '+money+'</p><input id="nameinput" maxlength="18" value="'+username.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'" placeholder="اسم اللاعب"><button id="savename">حفظ الاسم</button><button id="closehome">رجوع</button><p class="small">البيانات محفوظة على هذا الجهاز فقط في النسخة التجريبية.</p>');document.querySelector('#savename').onclick=()=>{let n=document.querySelector('#nameinput').value.trim();if(n){username=n;localStorage.yw_name=n;document.querySelector('#username').textContent=n;closePanel();toast('اتحفظ اسمك يا '+n+' 🎉')}};document.querySelector('#closehome').onclick=closePanel};
+document.querySelector('#chatbtn').onclick=()=>{showPanel('<h2>💬 دردشة المدينة</h2><div id="chatlog">'+(chat.length?chat.map(m=>'<div><b>'+m.n.replace(/</g,'&lt;')+':</b> '+m.t.replace(/</g,'&lt;')+'</div>').join(''):'<div>أهلاً بيك في دردشة يلا! اكتب رسالة تجريبية.</div>')+'</div><input id="chatinput" maxlength="120" placeholder="اكتب رسالة..."><button id="sendchat">إرسال</button><button id="closechat">إغلاق</button><p class="small">الدردشة الحالية محلية على جهازك وليست أونلاين مع لاعبين حقيقيين.</p>');document.querySelector('#sendchat').onclick=()=>{let t=document.querySelector('#chatinput').value.trim();if(t){chat.push({n:username,t});if(chat.length>30)chat.shift();closePanel();document.querySelector('#chatbtn').click()}};document.querySelector('#closechat').onclick=closePanel};
+})();</script></body></html>
